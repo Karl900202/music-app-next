@@ -5,6 +5,32 @@
   --foreground: #171717;
 }
 
+/* 기본은 스크롤바 숨김 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ⭐ hover 시에는 다시 스크롤바 활성화 */
+.hover-scrollbar:hover::-webkit-scrollbar {
+  display: block;
+}
+
+/* 스크롤바 디자인 */
+.hover-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  background: transparent;
+}
+
+.hover-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 10px;
+}
+
+/* hover 시 thumb 색 변경 */
+.hover-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

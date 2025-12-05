@@ -16,7 +16,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-60 h-full bg-black/30 border-r border-white/10 p-4 flex flex-col backdrop-blur-md">
-      <div className="flex items-center justify-center gap-2 mb-6 px-2">
+      <div className="flex items-center justify-center gap-2 mt-3 mb-10 px-2">
         <div className="w-12 h-7 rounded-xl bg-white flex items-center justify-center">
           <span className="text-purple-600 font-bold text-m">Karl</span>
         </div>
@@ -37,7 +37,7 @@ export default function Sidebar() {
             )}
           >
             <item.icon></item.icon>
-            <p className="text-m font-bold py-1">{item.name}</p>
+            <p className="text-xl font-bold py-1">{item.name}</p>
           </Link>
         ))}
       </nav>
