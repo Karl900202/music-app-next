@@ -4,8 +4,10 @@ import Image from "next/image";
 import { Play } from "lucide-react";
 import { Track } from "../page";
 import { useRef, useState, useEffect } from "react";
+import { usePlayer } from "./PlayerContext";
 
 export default function TrackCard({ track }: { track: Track }) {
+  const { playTrack } = usePlayer();
   const imageUrl = track.artworkUrl100 || track.image || null;
   const refs = {
     trackName: useRef<HTMLSpanElement>(null),
@@ -52,11 +54,18 @@ export default function TrackCard({ track }: { track: Track }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track]);
 
+  const handleCardClick = () => {
+    if (track.previewUrl) {
+      playTrack(track);
+    }
+  };
+
   return (
     <div
       className="group relative w-[210px] min-w-[210px] bg-neutral-900 rounded-xl p-3 flex flex-col gap-3 shadow-lg cursor-pointer overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div className="relative w-full h-[210px] bg-neutral-800 rounded-lg overflow-hidden group/image">
         {imageUrl ? (
@@ -72,6 +81,12 @@ export default function TrackCard({ track }: { track: Track }) {
             <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/20 transition-all duration-300 rounded-lg" />
 
             <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (track.previewUrl) {
+                  playTrack(track);
+                }
+              }}
               className="absolute inset-0 m-auto w-[33.6px] h-[33.6px] rounded-full bg-white text-black flex items-center justify-center opacity-0 scale-75 group-hover/image:opacity-100 group-hover/image:scale-100 transition-all duration-300 ease-out shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:scale-110 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] active:scale-105 z-10 cursor-pointer"
               aria-label="Play track"
             >
