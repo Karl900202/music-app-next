@@ -4,31 +4,82 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+/* ===== Modern Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
 
 /* 기본은 스크롤바 숨김 */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* ⭐ hover 시에는 다시 스크롤바 활성화 */
-.hover-scrollbar:hover::-webkit-scrollbar {
-  display: block;
+/* 스크롤바는 항상 공간을 차지하되, 기본은 투명 */
+.hover-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
 }
 
-/* 스크롤바 디자인 */
-.hover-scrollbar::-webkit-scrollbar {
-  height: 6px;
+.hover-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .hover-scrollbar::-webkit-scrollbar-thumb {
   background: transparent;
   border-radius: 10px;
+  transition: background 0.2s ease;
 }
 
-/* hover 시 thumb 색 변경 */
+/* ⭐ hover 시에만 thumb 보이기 */
 .hover-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Firefox - 항상 공간 차지하되 기본은 투명 */
+.hover-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* Firefox - hover 시 표시 */
+.hover-scrollbar:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
+}
+
+/* 텍스트 무한 스크롤 애니메이션 */
+@keyframes scroll-text {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(var(--scroll-distance, 0px) * -1));
+  }
+}
+
+.animate-scroll-text {
+  animation: scroll-text linear infinite;
+  will-change: transform;
 }
 
 @theme inline {
