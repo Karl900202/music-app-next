@@ -85,7 +85,7 @@ const HorizontalScroll = forwardRef<
   }, [children]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-9/10">
       <div className="absolute -top-12 right-0 flex gap-3">
         <button
           disabled={!canLeft}

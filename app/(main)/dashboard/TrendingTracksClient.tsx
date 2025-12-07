@@ -109,8 +109,8 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
   };
 
   return (
-    <div className="mt-10">
-      <div className="flex items-center justify-start gap-4 mb-10">
+    <div>
+      <div className="flex items-center justify-start gap-4 mb-8">
         {GENRES.map((genre) => (
           <button
             key={genre}
@@ -128,7 +128,7 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
       </div>
 
       {selectedGenre && (
-        <div className="mt-14">
+        <div className="mb-16">
           <h2 className="text-3xl font-bold mb-6">{selectedGenre} 장르 추천</h2>
 
           {loadingGenre ? (
@@ -150,7 +150,7 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
         </div>
       )}
 
-      <div className="mt-20">
+      <div>
         <h1 className="text-3xl font-bold mb-6">인기 급 상승곡</h1>
 
         <HorizontalScroll>

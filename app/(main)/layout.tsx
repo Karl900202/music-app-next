@@ -10,31 +10,32 @@ export default function MainLayout({
 }) {
   return (
     <div className="min-h-screen min-w-screen relative">
-      {/* Base dark background */}
-      <div aria-hidden className="fixed inset-0 -z-20 bg-neutral-950" />
-
-      {/* Subtle top-left light gradient (around 5% of screen) */}
-      <div
-        aria-hidden
-        className="fixed inset-0 -z-10 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(
-              circle at 0% 0%,
-              rgba(255, 255, 255, 0.08) 0%,
-              rgba(255, 255, 255, 0.03) 7%,
-              rgba(255, 255, 255, 0.00) 12%
-            )
-          `,
-        }}
-      />
+      <div className="fixed inset-0 -z-20 bg-[#0a0a0a]" />
 
       <div className="flex h-screen">
         <Sidebar />
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+          {/* YouTube Music style gradient - sky blue, only on main content area */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `
+                linear-gradient(
+                  180deg,
+                  rgba(59, 130, 246, 0.12) 0%,
+                  rgba(59, 130, 246, 0.08) 20%,
+                  rgba(59, 130, 246, 0.04) 40%,
+                  rgba(59, 130, 246, 0.02) 60%,
+                  rgba(59, 130, 246, 0.01) 80%,
+                  transparent 100%
+                )
+              `,
+            }}
+          />
+          
           <Header />
-          <main className="flex-1 overflow-y-auto px-4 py-2">{children}</main>
+          <main className="flex-1 overflow-y-auto relative z-10">{children}</main>
         </div>
       </div>
 

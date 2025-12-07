@@ -104,13 +104,15 @@ export default async function MainPage() {
   const tracks = await getPopularTracks();
 
   return (
-    <div className="w-9/10 h-full text-neutral-100 p-6 select-none overflow-x-hidden">
-      <h1 className="text-3xl font-bold mb-1">Welcome to MyMusic</h1>
-      <p className="text-neutral-400 text-sm">
-        Personal music streaming playground
-      </p>
+    <div className="w-full min-h-screen text-neutral-100 select-none">
+      <div className="px-8 pt-6 pb-24">
+        <h1 className="text-3xl font-bold mb-1">Welcome to MyMusic</h1>
+        <p className="text-neutral-400 text-sm mb-8">
+          Personal music streaming playground
+        </p>
 
-      <TrendingTracksClient tracks={tracks} />
+        <TrendingTracksClient tracks={tracks} />
+      </div>
     </div>
   );
 }
