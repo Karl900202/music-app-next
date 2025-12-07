@@ -19,6 +19,15 @@ const genreMap: Record<string, string> = {
   SOUL: "soul",
 };
 
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [genreTracks, setGenreTracks] = useState<Track[]>([]);
@@ -96,7 +105,7 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
             })
           );
 
-        setGenreTracks(tracks);
+        setGenreTracks(shuffleArray(tracks));
       } else {
         setGenreTracks([]);
       }
@@ -136,8 +145,12 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
               {Array.from({ length: 10 }).map((_, i) => (
                 <div
                   key={i}
-                  className="min-w-[210px] h-[260px] rounded-xl bg-neutral-800 animate-pulse"
-                />
+                  className="w-[210px] min-w-[210px] bg-neutral-900 rounded-xl p-3 flex flex-col gap-3"
+                >
+                  <div className="w-full h-[210px] bg-neutral-800 rounded-lg animate-pulse" />
+                  <div className="h-4 bg-neutral-800 rounded animate-pulse" />
+                  <div className="h-3 bg-neutral-800 rounded animate-pulse w-3/4" />
+                </div>
               ))}
             </HorizontalScroll>
           ) : (
