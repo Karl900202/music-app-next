@@ -1,15 +1,25 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useRef, useState, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 
-export default function HorizontalScroll({
-  children,
-  itemWidth = 225,
-}: {
-  children: React.ReactNode;
-  itemWidth?: number;
-}) {
+export interface HorizontalScrollRef {
+  scrollToStart: () => void;
+}
+
+const HorizontalScroll = forwardRef<
+  HorizontalScrollRef,
+  {
+    children: React.ReactNode;
+    itemWidth?: number;
+  }
+>(({ children, itemWidth = 226 }, ref) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [canLeft, setCanLeft] = useState(false);
@@ -26,6 +36,45 @@ export default function HorizontalScroll({
     setCanRight(!right);
   };
 
+  const scrollByVisibleCards = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const containerWidth = el.clientWidth;
+    const cardWidth = itemWidth;
+    const visibleCards = Math.floor(containerWidth / cardWidth) || 1;
+    const scrollAmount = visibleCards * cardWidth;
+
+    let newScrollLeft =
+      direction === "left"
+        ? el.scrollLeft - scrollAmount
+        : el.scrollLeft + scrollAmount;
+
+    // 마지막 위치에서 넘어가지 않도록 제한
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
+
+    // 카드가 잘리지 않도록 정확한 위치로 스크롤
+    const cardIndex = Math.round(newScrollLeft / cardWidth);
+    newScrollLeft = cardIndex * cardWidth;
+
+    el.scrollTo({
+      left: newScrollLeft,
+      behavior: "smooth",
+    });
+  };
+
+  useImperativeHandle(ref, () => ({
+    scrollToStart: () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({
+          left: 0,
+          behavior: "smooth",
+        });
+      }
+    },
+  }));
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -37,18 +86,12 @@ export default function HorizontalScroll({
 
   return (
     <div className="relative w-full">
-      {/* Scroll Buttons */}
       <div className="absolute -top-12 right-0 flex gap-3">
         <button
           disabled={!canLeft}
           className={`border border-white/30 p-2 rounded-full transition z-10 
             ${canLeft ? "hover:bg-white/10" : "opacity-30 cursor-not-allowed"}`}
-          onClick={() =>
-            scrollRef.current?.scrollBy({
-              left: -itemWidth,
-              behavior: "smooth",
-            })
-          }
+          onClick={() => scrollByVisibleCards("left")}
         >
           <ChevronLeft />
         </button>
@@ -59,24 +102,35 @@ export default function HorizontalScroll({
             ${
               canRight ? "hover:bg-white/10" : "opacity-30 cursor-not-allowed"
             }`}
-          onClick={() =>
-            scrollRef.current?.scrollBy({
-              left: itemWidth,
-              behavior: "smooth",
-            })
-          }
+          onClick={() => scrollByVisibleCards("right")}
         >
           <ChevronRight />
         </button>
       </div>
 
-      {/* Scrollable Row */}
       <div
         ref={scrollRef}
-        className="flex gap-4 py-3 overflow-x-scroll scroll-smooth no-scrollbar"
+        className="flex gap-4 py-3 overflow-x-scroll scroll-smooth hover-scrollbar"
+        style={{
+          scrollSnapType: "x mandatory",
+        }}
       >
-        {children}
+        {React.Children.map(children, (child, index) => (
+          <div
+            key={index}
+            style={{
+              scrollSnapAlign: "start",
+              flexShrink: 0,
+            }}
+          >
+            {child}
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+});
+
+HorizontalScroll.displayName = "HorizontalScroll";
+
+export default HorizontalScroll;
