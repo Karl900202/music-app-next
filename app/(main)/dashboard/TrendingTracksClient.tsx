@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Track } from "./page";
 import HorizontalScroll, {
   HorizontalScrollRef,
@@ -34,7 +34,7 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
   const [loadingGenre, setLoadingGenre] = useState(false);
   const genreScrollRef = useRef<HorizontalScrollRef>(null);
 
-  const fetchGenreTracks = async (genre: string) => {
+  const fetchGenreTracks = useCallback(async (genre: string) => {
     setSelectedGenre(genre);
     setLoadingGenre(true);
     genreScrollRef.current?.scrollToStart();
@@ -115,25 +115,31 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
     } finally {
       setLoadingGenre(false);
     }
-  };
+  }, []);
+
+  const genreButtons = useMemo(
+    () =>
+      GENRES.map((genre) => (
+        <button
+          key={genre}
+          onClick={() => fetchGenreTracks(genre)}
+          className={`rounded-lg text-white text-sm px-3 py-2 transition
+            ${
+              selectedGenre === genre
+                ? "bg-white/30"
+                : "bg-white/10 hover:bg-white/20"
+            }`}
+        >
+          {genre}
+        </button>
+      )),
+    [selectedGenre, fetchGenreTracks]
+  );
 
   return (
     <div>
       <div className="flex items-center justify-start gap-4 mb-8">
-        {GENRES.map((genre) => (
-          <button
-            key={genre}
-            onClick={() => fetchGenreTracks(genre)}
-            className={`rounded-lg text-white text-sm px-3 py-2 transition
-              ${
-                selectedGenre === genre
-                  ? "bg-white/30"
-                  : "bg-white/10 hover:bg-white/20"
-              }`}
-          >
-            {genre}
-          </button>
-        ))}
+        {genreButtons}
       </div>
 
       {selectedGenre && (
@@ -145,11 +151,11 @@ export default function TrendingTracksClient({ tracks }: { tracks: Track[] }) {
               {Array.from({ length: 10 }).map((_, i) => (
                 <div
                   key={i}
-                  className="w-[210px] min-w-[210px] bg-neutral-900 rounded-xl p-3 flex flex-col gap-3"
+                  className="w-[210px] min-w-[210px] bg-neutral-900 rounded-xl p-3 flex flex-col gap-3 shadow-lg"
                 >
                   <div className="w-full h-[210px] bg-neutral-800 rounded-lg animate-pulse" />
-                  <div className="h-4 bg-neutral-800 rounded animate-pulse" />
-                  <div className="h-3 bg-neutral-800 rounded animate-pulse w-3/4" />
+                  <div className="h-5 bg-neutral-800 rounded animate-pulse" />
+                  <div className="h-4 bg-neutral-800 rounded animate-pulse w-3/4" />
                 </div>
               ))}
             </HorizontalScroll>

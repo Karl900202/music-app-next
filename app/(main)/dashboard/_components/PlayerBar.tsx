@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 
 export default function PlayerBar() {
   const {
@@ -63,39 +63,54 @@ export default function PlayerBar() {
     };
   }, [isDraggingVolume, updateVolumeFromEvent]);
 
-  if (!currentTrack) return null;
-
-  const formatTime = (seconds: number) => {
+  const formatTime = useCallback((seconds: number) => {
     if (isNaN(seconds)) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  }, []);
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current || !duration) return;
-    const rect = progressRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const newTime = percent * duration;
-    setCurrentTime(newTime);
-  };
+  const handleProgressClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!progressRef.current || !duration) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      const newTime = percent * duration;
+      setCurrentTime(newTime);
+    },
+    [duration, setCurrentTime]
+  );
 
-  const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDraggingVolume(true);
-    updateVolumeFromEvent(e.clientY);
-  };
-
-  const handleVolumeClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDraggingVolume) {
+  const handleVolumeMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDraggingVolume(true);
       updateVolumeFromEvent(e.clientY);
-    }
-  };
+    },
+    [updateVolumeFromEvent]
+  );
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const volumePercent = volume * 100;
+  const handleVolumeClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isDraggingVolume) {
+        updateVolumeFromEvent(e.clientY);
+      }
+    },
+    [isDraggingVolume, updateVolumeFromEvent]
+  );
 
-  const imageUrl = currentTrack.artworkUrl100 || currentTrack.image;
+  const progressPercent = useMemo(
+    () => (duration > 0 ? (currentTime / duration) * 100 : 0),
+    [currentTime, duration]
+  );
+  const volumePercent = useMemo(() => volume * 100, [volume]);
+
+  const imageUrl = useMemo(
+    () => currentTrack?.artworkUrl100 || currentTrack?.image,
+    [currentTrack]
+  );
+
+  if (!currentTrack) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-20 bg-neutral-900/95 backdrop-blur-sm border-t border-white/10 z-50">

@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   forwardRef,
+  useCallback,
 } from "react";
 
 export interface HorizontalScrollRef {
@@ -25,7 +26,7 @@ const HorizontalScroll = forwardRef<
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
 
-  const checkScrollEdges = () => {
+  const checkScrollEdges = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
 
@@ -34,46 +35,61 @@ const HorizontalScroll = forwardRef<
 
     setCanLeft(!left);
     setCanRight(!right);
-  };
+  }, []);
 
-  const scrollByVisibleCards = (direction: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
+  const scrollByVisibleCards = useCallback(
+    (direction: "left" | "right") => {
+      const el = scrollRef.current;
+      if (!el) return;
 
-    const containerWidth = el.clientWidth;
-    const cardWidth = itemWidth;
-    const visibleCards = Math.floor(containerWidth / cardWidth) || 1;
-    const scrollAmount = visibleCards * cardWidth;
+      const containerWidth = el.clientWidth;
+      const cardWidth = itemWidth;
+      const visibleCards = Math.floor(containerWidth / cardWidth) || 1;
+      const scrollAmount = visibleCards * cardWidth;
 
-    let newScrollLeft =
-      direction === "left"
-        ? el.scrollLeft - scrollAmount
-        : el.scrollLeft + scrollAmount;
+      let newScrollLeft =
+        direction === "left"
+          ? el.scrollLeft - scrollAmount
+          : el.scrollLeft + scrollAmount;
 
-    // 마지막 위치에서 넘어가지 않도록 제한
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      newScrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
 
-    // 카드가 잘리지 않도록 정확한 위치로 스크롤
-    const cardIndex = Math.round(newScrollLeft / cardWidth);
-    newScrollLeft = cardIndex * cardWidth;
+      const cardIndex = Math.round(newScrollLeft / cardWidth);
+      newScrollLeft = cardIndex * cardWidth;
 
-    el.scrollTo({
-      left: newScrollLeft,
-      behavior: "smooth",
-    });
-  };
-
-  useImperativeHandle(ref, () => ({
-    scrollToStart: () => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTo({
-          left: 0,
-          behavior: "smooth",
-        });
-      }
+      el.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
     },
-  }));
+    [itemWidth]
+  );
+
+  const scrollToStart = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToStart,
+    }),
+    [scrollToStart]
+  );
+
+  const handleScrollLeft = useCallback(() => {
+    scrollByVisibleCards("left");
+  }, [scrollByVisibleCards]);
+
+  const handleScrollRight = useCallback(() => {
+    scrollByVisibleCards("right");
+  }, [scrollByVisibleCards]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -82,7 +98,7 @@ const HorizontalScroll = forwardRef<
     checkScrollEdges();
     el.addEventListener("scroll", checkScrollEdges);
     return () => el.removeEventListener("scroll", checkScrollEdges);
-  }, [children]);
+  }, [children, checkScrollEdges]);
 
   return (
     <div className="relative w-9/10">
@@ -91,7 +107,7 @@ const HorizontalScroll = forwardRef<
           disabled={!canLeft}
           className={`border border-white/30 p-2 rounded-full transition z-10 
             ${canLeft ? "hover:bg-white/10" : "opacity-30 cursor-not-allowed"}`}
-          onClick={() => scrollByVisibleCards("left")}
+          onClick={handleScrollLeft}
         >
           <ChevronLeft />
         </button>
@@ -102,7 +118,7 @@ const HorizontalScroll = forwardRef<
             ${
               canRight ? "hover:bg-white/10" : "opacity-30 cursor-not-allowed"
             }`}
-          onClick={() => scrollByVisibleCards("right")}
+          onClick={handleScrollRight}
         >
           <ChevronRight />
         </button>

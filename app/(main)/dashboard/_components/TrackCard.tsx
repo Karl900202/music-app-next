@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { Play } from "lucide-react";
 import { Track } from "../page";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo, useCallback } from "react";
 import { usePlayer } from "./PlayerContext";
 
-export default function TrackCard({ track }: { track: Track }) {
+function TrackCard({ track }: { track: Track }) {
   const { playTrack } = usePlayer();
   const imageUrl = track.artworkUrl100 || track.image || null;
   const refs = {
@@ -54,11 +54,21 @@ export default function TrackCard({ track }: { track: Track }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track]);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     if (track.previewUrl) {
       playTrack(track);
     }
-  };
+  }, [track, playTrack]);
+
+  const handlePlayButtonClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (track.previewUrl) {
+        playTrack(track);
+      }
+    },
+    [track, playTrack]
+  );
 
   return (
     <div
@@ -81,12 +91,7 @@ export default function TrackCard({ track }: { track: Track }) {
             <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/20 transition-all duration-300 rounded-lg" />
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (track.previewUrl) {
-                  playTrack(track);
-                }
-              }}
+              onClick={handlePlayButtonClick}
               className="absolute inset-0 m-auto w-[33.6px] h-[33.6px] rounded-full bg-white text-black flex items-center justify-center opacity-0 scale-75 group-hover/image:opacity-100 group-hover/image:scale-100 transition-all duration-300 ease-out shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:scale-110 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] active:scale-105 z-10 cursor-pointer"
               aria-label="Play track"
             >
@@ -158,3 +163,13 @@ export default function TrackCard({ track }: { track: Track }) {
     </div>
   );
 }
+
+export default memo(TrackCard, (prevProps, nextProps) => {
+  return (
+    prevProps.track.trackId === nextProps.track.trackId &&
+    prevProps.track.trackName === nextProps.track.trackName &&
+    prevProps.track.artistName === nextProps.track.artistName &&
+    prevProps.track.artworkUrl100 === nextProps.track.artworkUrl100 &&
+    prevProps.track.previewUrl === nextProps.track.previewUrl
+  );
+});
